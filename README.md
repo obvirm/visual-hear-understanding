@@ -1,61 +1,61 @@
 # @obvirm/visual-hear-understanding
 
-Model Context Protocol (MCP) Server untuk analisis tingkat lanjut terhadap media fisik (gambar, video, dan audio) menggunakan Google Gemini API.
+Model Context Protocol (MCP) Server for advanced analysis of physical media (images, video, and audio) using the Google Gemini API.
 
-## Persyaratan Sistem
+## System Requirements
 
-- Node.js (versi 18 atau lebih tinggi)
-- FFmpeg (opsional, namun diwajibkan untuk mendukung fungsi kompresi gambar/video, pemotongan segmen, dan ekstraksi audio)
-- Kunci API Google Gemini
+- Node.js (version 18 or higher)
+- FFmpeg (optional, but required for image/video compression, segment cutting, and audio extraction)
+- Google Gemini API Key
 
-## Konfigurasi Lingkungan
+## Environment Configuration
 
-Konfigurasi berikut harus tersedia di dalam file `.env` direktori kerja atau diatur melalui *environment variables*:
+The following configurations must be available in a `.env` file within the working directory or passed as environment variables:
 
-- `GEMINI_API_KEY` (Wajib): Kunci autentikasi API dari Google AI Studio.
-- `GEMINI_MODEL` (Opsional): Model bawaan yang akan digunakan jika parameter model diabaikan pada permintaan. (Default: `gemini-2.5-pro`).
+- `GEMINI_API_KEY` (Required): Authentication key from Google AI Studio.
+- `GEMINI_MODEL` (Optional): The default model to be used if the model parameter is omitted in the request. (Default: `gemini-2.5-pro`).
 
-## Spesifikasi Tool: `analyze_with_gemini`
+## Tool Specification: `analyze_with_gemini`
 
-Tool ini melakukan unggah media lokal ke infrastruktur Gemini untuk proses analitik, lalu menghapusnya secara otomatis dari peladen (server) Google sesaat setelah respons diterima guna menjaga batas kuota penyimpanan 20 GB.
+This tool uploads local media to the Gemini infrastructure for analytical processing, then automatically deletes it from the Google servers immediately after a response is received to maintain the 20 GB storage quota.
 
-### Parameter Input (Schema)
+### Input Parameters (Schema)
 
-- **prompt** `[String] (Wajib)`
-  Instruksi analitik atau pertanyaan mengenai konten media yang diunggah.
+- **prompt** `[String] (Required)`
+  The analytical instruction or question regarding the uploaded media content.
   
-- **media_path** `[String] (Opsional)`
-  Jalur absolut (*absolute path*) menuju satu file media di media penyimpanan lokal.
+- **media_path** `[String] (Optional)`
+  The absolute path to a single media file in the local storage.
   
-- **media_paths** `[Array of Strings] (Opsional)`
-  Daftar jalur absolut untuk mengunggah dan memproses banyak file secara paralel (analisis perbandingan).
+- **media_paths** `[Array of Strings] (Optional)`
+  A list of absolute paths for uploading and processing multiple files in parallel (comparative analysis).
   
-- **model** `[String] (Opsional)`
-  Parameter pengganti khusus untuk memaksakan model lain pada satu instruksi tanpa merubah lingkungan global (contoh: `gemini-2.5-flash`).
+- **model** `[String] (Optional)`
+  An override parameter to force a different model for a single instruction without altering the global environment (e.g., `gemini-2.5-flash`).
   
-- **start_time** `[String] (Opsional)`
-  Titik durasi mulai untuk pemotongan segmen lokal. Format diterima: `HH:MM:SS` atau detik bulat (`60`). Membutuhkan instalasi FFmpeg.
+- **start_time** `[String] (Optional)`
+  The starting duration point for local segment cutting. Accepted formats: `HH:MM:SS` or round seconds (`60`). Requires FFmpeg installation.
   
-- **end_time** `[String] (Opsional)`
-  Titik durasi akhir untuk pemotongan segmen lokal. Membutuhkan instalasi FFmpeg.
+- **end_time** `[String] (Optional)`
+  The ending duration point for local segment cutting. Requires FFmpeg installation.
   
-- **json_output** `[Boolean] (Opsional)`
-  Saat diset `true`, instruksi dipaksa mengembalikan nilai murni terstruktur dalam format JSON dengan mengaktifkan *responseMimeType*.
+- **json_output** `[Boolean] (Optional)`
+  When set to `true`, forces the instruction to return pure structured values in JSON format by activating *responseMimeType*.
   
-- **audio_only** `[Boolean] (Opsional)`
-  Saat diset `true`, membuang jalur visual dari video dan hanya mengekstrak audio (`.mp3`) secara lokal. Secara drastis menghemat waktu unggah untuk keperluan transkripsi. Membutuhkan FFmpeg.
+- **audio_only** `[Boolean] (Optional)`
+  When set to `true`, discards the visual track from a video and extracts only the audio (`.mp3`) locally. Drastically reduces upload times for transcription purposes. Requires FFmpeg.
   
-- **auto_compress** `[Boolean] (Opsional)`
-  Saat diset `true`, mengubah skala resolusi asli pada gambar atau video menjadi lebar maksimum 1920 piksel. Mengoptimalkan batas token pada API tanpa banyak mengorbankan kualitas analitik. Membutuhkan FFmpeg.
+- **auto_compress** `[Boolean] (Optional)`
+  When set to `true`, alters the original resolution scale of images or videos to a maximum width of 1920 pixels. Optimizes API token limits without significantly sacrificing analytical quality. Requires FFmpeg.
   
-- **system_instruction** `[String] (Opsional)`
-  Memberikan *persona* absolut atau instruksi dasar berskala sistem terhadap AI untuk membatasi ruang lingkup jawaban.
+- **system_instruction** `[String] (Optional)`
+  Provides an absolute persona or foundational system-wide instruction to the AI to limit the scope of the answers.
   
-- **temperature** `[Number] (Opsional)`
-  Skala desimal pengontrol determinisme keluaran (0.0 hingga 2.0).
+- **temperature** `[Number] (Optional)`
+  A decimal scale controlling the determinism of the output (0.0 to 2.0).
 
-### Mekanisme Kestabilan (Resilience Features)
+### Resilience Mechanisms
 
-- **Blokir Batas Ukuran**: Skrip melakukan validasi sinkron untuk menolak file di atas limit keras 2 GB secara seketika guna mencegah hambatan proses *I/O*.
-- **Anti-Rate Limit (Auto-Retry)**: Menangkap respons error `429` pada panggilan kejut dan memberlakukan waktu tunggu (*backoff delay*) 25 detik hingga maksimum tiga kali percobaan sebelum memancarkan error sesungguhnya ke klien.
-- **Deteksi Kondisional FFmpeg**: Pengecekan biner `ffmpeg` dilakukan di awal. Fitur manipulasi dimatikan secara mulus dengan peringatan klien tanpa memberhentikan siklus pemrosesan jika modul tidak tersedia.
+- **Size Limit Block**: The script performs synchronous validation to instantly reject files above the 2 GB hard limit to prevent I/O bottlenecks.
+- **Anti-Rate Limit (Auto-Retry)**: Catches `429` error responses on sudden calls and enforces a 25-second backoff delay up to a maximum of three retries before emitting the actual error to the client.
+- **Conditional FFmpeg Detection**: Binary check for `ffmpeg` is performed at initialization. Manipulation features are gracefully disabled with a client warning without halting the processing cycle if the module is unavailable.
