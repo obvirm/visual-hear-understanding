@@ -10,10 +10,26 @@ Model Context Protocol (MCP) Server for advanced analysis of physical media (ima
 
 ## Environment Configuration
 
-The following configurations must be available in a `.env` file within the working directory or passed as environment variables:
+Because this operates as an MCP Server, environment variables should not be managed via a local `.env` file. Instead, they must be passed directly through the MCP client's JSON configuration (e.g., Cursor, Claude Desktop).
 
 - `GEMINI_API_KEY` (Required): Authentication key from Google AI Studio.
 - `GEMINI_MODEL` (Optional): The default model to be used if the model parameter is omitted in the request. (Default: `gemini-2.5-pro`).
+
+**Example MCP Client Configuration:**
+```json
+{
+  "mcpServers": {
+    "visual-hear-understanding": {
+      "command": "npx",
+      "args": ["-y", "@obvirm/visual-hear-understanding"],
+      "env": {
+        "GEMINI_API_KEY": "YOUR_API_KEY_HERE",
+        "GEMINI_MODEL": "gemini-2.5-flash"
+      }
+    }
+  }
+}
+```
 
 ## Tool Specification: `analyze_with_gemini`
 
