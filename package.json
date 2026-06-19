@@ -1,0 +1,29 @@
+{
+  "name": "@obvirm/visual-hear-understanding",
+  "version": "1.0.0",
+  "description": "MCP Server for Gemini Visual & Hear Understanding",
+  "main": "build/index.js",
+  "type": "module",
+  "bin": {
+    "visual-hear-understanding": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^0.1.2",
+    "@modelcontextprotocol/sdk": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
