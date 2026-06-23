@@ -44,7 +44,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     }]
 }));
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
     const { 
         prompt, media_path, media_paths = [], start_time, end_time, 
         json_output = false, audio_only = false, auto_compress = false, 
