@@ -1,6 +1,6 @@
 {
   "name": "@obvirm/visual-hear-understanding",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP Server for Gemini Visual & Hear Understanding",
   "main": "build/index.js",
   "type": "module",
